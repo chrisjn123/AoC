@@ -1,3 +1,4 @@
+from collections import defaultdict
 TEST = False
 
 if TEST:
@@ -7,6 +8,7 @@ else:
 
 # day 9
 visited = 0
+tracked = defaultdict(int)
 
 h_loc = {'x': 0, 'y': 0} 
 t_loc = {'x': 0, 'y': 0} 
@@ -50,6 +52,7 @@ def move(direction: str, amount: int):
                 else:
                     move_diag()
                 visited += 1
+                tracked[(t_loc['x'], t_loc['y'])] += 1
         else:
             h_loc['y'] += delta
             if not closeToH():
@@ -59,13 +62,15 @@ def move(direction: str, amount: int):
                     move_diag()
         
                 visited += 1
+                tracked[(t_loc['x'], t_loc['y'])] += 1
     #print(f'H: {h_loc["x"]}, {h_loc["y"]}')
     #print(f'T: {t_loc["x"]}, {t_loc["y"]}')
     #print('------------------')
+
 
 for line in data:
     move(
         line.split()[0],
         int(line.split()[-1])
     )
-print(f'Visitied: {visited}')
+print(f'Visited: {len(tracked)}')
