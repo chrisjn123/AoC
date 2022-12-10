@@ -129,7 +129,6 @@ def run(moves: list, num_knots=1):
                 in_line = tail[i]
             
             tracked_points.add(tail[-1])
-    
-    return len(tracked_points)
+    return len(set(tracked_points))
 
 print(run(data, 9))
