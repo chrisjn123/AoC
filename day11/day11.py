@@ -16,60 +16,37 @@ class Monkey:
         self.res=test_res
 
         self.inspection_count = 0
-        
-    
-    def test(self) -> list:
-        # Test: divisible by 7
-        out = []
-        for val in self.starting_items:
-            test_op = self.test_string.split()[0]
-            test_val = int(self.test_string.split()[-1])
-
-            match test_op:
-                case 'divisible':
-                    if val % test_val == 0:
-                        out.append(int(self.res[0].split()[-1]))
-                    else:
-                        out.append(int(self.res[1].split()[-1]))
-                case _:
-                    pass
-        return out
 
     def operation(self):
+        global monkies
         op = self.op.split('=')[-1]
-        left = op.split()[0]
-        operator_ch = op.split()[1]
-        right = op.split()[2]
+        if 'old * old' in op:
+            old2old = True
+        else: 
+            old2old = False
+        
+        op = op.replace('old', '')
 
-        if left == right:
-            same = True
-        else:
-            same = False
+        test_op = self.test_string.split()[0]
+        test_val = int(self.test_string.split()[-1])
 
-        for i, _ in enumerate(self.starting_items):
+        while self.starting_items:
             self.inspection_count += 1
-            match operator_ch:
-                case '*':
-                    if same:
-                        self.starting_items[i] *= self.starting_items[i]
+            item = self.starting_items.pop(0)
+            if old2old:
+                worry = eval(f'{item} * {item}') % 9699690
+            else:
+                worry = eval(f'{item} {op}') % 9699690
+            
+            match test_op:
+                case 'divisible':
+                    if worry % test_val == 0:
+                        monkies[int(self.res[0].split()[-1])].starting_items.append(worry)
                     else:
-                        self.starting_items[i] *= int(right)
-                case '-':
-                    if same:
-                        self.starting_items[i] -= self.starting_items[i]
-                    else:
-                        self.starting_items[i] -= int(right)
-                case '+':
-                    if same:
-                        self.starting_items[i] += self.starting_items[i]
-                    else:
-                        self.starting_items[i] += int(right)
-                case '/':
-                    if same:
-                        self.starting_items[i] /= self.starting_items[i]
-                    else:
-                        self.starting_items[i] /= int(right)
-            #self.starting_items[i] = self.starting_items[i] // 3
+                        monkies[int(self.res[1].split()[-1])].starting_items.append(worry)
+                case _:
+                    pass
+        self.starting_items.clear()
         
 for monkey in data:
     id = int(monkey[0].split()[-1].replace(':', ''))
@@ -83,16 +60,12 @@ for monkey in data:
 
 # 20 rounds
 for i in range(1, 10000 +1):
-    print(f'Running round {i}')
+    #print(f'Running round {i}')
     # Runs 1 Round
     for monkey_id in monkies.keys():
         monkies[monkey_id].operation()
-        to_monkies = monkies[monkey_id].test()
-        for i, dest in enumerate(to_monkies):
-            monkies[dest].starting_items.append(
-                monkies[monkey_id].starting_items[i]
-            )
-        monkies[monkey_id].starting_items.clear()
 
 id_count = {monkies[monkey].id : monkies[monkey].inspection_count for monkey in monkies}
-print()
+a = sorted(id_count.values())[-2:]
+print(a[0] * a[1], end=' ')
+print(f'= 15305381442') 
