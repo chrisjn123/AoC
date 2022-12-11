@@ -1,4 +1,5 @@
 from collections import defaultdict
+import time
 
 data = open('input.txt').read()
 data = data.split('\n\n')
@@ -26,8 +27,6 @@ class Monkey:
             old2old = False
         
         op = op.replace('old', '')
-
-        test_op = self.test_string.split()[0]
         test_val = int(self.test_string.split()[-1])
 
         while self.starting_items:
@@ -38,15 +37,10 @@ class Monkey:
             else:
                 worry = eval(f'{item} {op}') % 9699690
             
-            match test_op:
-                case 'divisible':
-                    if worry % test_val == 0:
-                        monkies[int(self.res[0].split()[-1])].starting_items.append(worry)
-                    else:
-                        monkies[int(self.res[1].split()[-1])].starting_items.append(worry)
-                case _:
-                    pass
-        self.starting_items.clear()
+            if worry % test_val == 0:
+                monkies[int(self.res[0].split()[-1])].starting_items.append(worry)
+            else:
+                monkies[int(self.res[1].split()[-1])].starting_items.append(worry)
         
 for monkey in data:
     id = int(monkey[0].split()[-1].replace(':', ''))
@@ -58,14 +52,17 @@ for monkey in data:
 
     monkies[id] = Monkey(id=id, starting=items, op=op, test=test, test_res=[t_case, f_case])
 
-# 20 rounds
-for i in range(1, 10000 +1):
-    #print(f'Running round {i}')
-    # Runs 1 Round
+start = time.time()
+rounds = 10000
+for i in range(1,  rounds+1):
+    #print(f'Running round {i} of {rounds} ({100*i / rounds}%)')
     for monkey_id in monkies.keys():
         monkies[monkey_id].operation()
+stop = time.time()
 
 id_count = {monkies[monkey].id : monkies[monkey].inspection_count for monkey in monkies}
-a = sorted(id_count.values())[-2:]
+a = sorted(id_count.values(), reverse=True)[:2]
 print(a[0] * a[1], end=' ')
-print(f'= 15305381442') 
+print(f'== 15305381442') 
+
+print('Code ran in {} seconds '.format(round(stop-start, 2)))
