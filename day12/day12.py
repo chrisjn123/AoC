@@ -1,5 +1,6 @@
 from collections import defaultdict
 from queue import PriorityQueue
+import time
 
 #data = [line.strip() for line in open('test.txt').readlines()]
 data = [line.strip() for line in open('input.txt').readlines()]
@@ -107,11 +108,10 @@ def aStar():
 pathes = []
 for i, start in enumerate(starts):
     st = start
-    print(f'Running elevation a #{i+1} ({round(100 * i / len(starts), 2)}%)')
+    #print(f'Running elevation a #{i+1} ({round(100 * (i+1) / len(starts), 2)}%)')
     try:
         path=aStar()
         pathes.append(len(path))
     except KeyError:
         continue
-
 print(f'Minimum: {min(pathes)}')
