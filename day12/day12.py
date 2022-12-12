@@ -1,6 +1,8 @@
 from collections import defaultdict
 from queue import PriorityQueue
-import time
+from colorama import Fore
+from time import sleep
+import os
 
 #data = [line.strip() for line in open('test.txt').readlines()]
 data = [line.strip() for line in open('input.txt').readlines()]
@@ -63,6 +65,14 @@ for cell in grid:
     
     map[cell] = dirs 
 
+def print_grid(aPath):
+    for coord in grid:
+        color = Fore.GREEN if coord not in aPath else Fore.RED
+        i, j = coord
+        print(color + data[i][j] + Fore.RESET, end='')
+        if j == len(data[0]) - 1:
+            print()
+
 def aStar():
     global st, ed
     start = st
@@ -98,6 +108,9 @@ def aStar():
                     f_score[childCell]= temp_f_score
                     open.put((temp_f_score, h(childCell, ed), childCell))
                     aPath[childCell] = currCell
+                #print_grid(aPath)
+                #os.system('cls')
+                
     fwdPath={}
     cell = ed
     while cell != start:
@@ -105,6 +118,9 @@ def aStar():
         cell = aPath[cell]
     return fwdPath
 
+path=aStar()
+print_grid(path)
+'''
 pathes = []
 for i, start in enumerate(starts):
     st = start
@@ -114,4 +130,4 @@ for i, start in enumerate(starts):
         pathes.append(len(path))
     except KeyError:
         continue
-print(f'Minimum: {min(pathes)}')
+print(f'Minimum: {min(pathes)}')'''
