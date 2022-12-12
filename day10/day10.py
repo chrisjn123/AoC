@@ -15,15 +15,10 @@ prev = X
 
 def draw():
     global crt, X, cycles, idx
-    if X != prev:
-        idx = 0
     
     sprite = [X - 1, X, X+1]
     if ((cycles-1)  % 40) in sprite:
-        crt[cycles - 1] = "#"
-    idx += 1
-    if idx > 2:
-        idx = 0    
+        crt[cycles - 1] = "#"  
 
 for ins in data:
     draw()
@@ -50,7 +45,7 @@ rows = [crt[i:i+40] for i in range(len(crt), 40) ]
 s = 0
 for i in [20, 60, 100, 140, 180, 220]:
     s += (c2v[i] * i)
-    print(c2v[i] * i)
+    print(c2v[i] * i, end=', ')
 print(s)
 print()
 
