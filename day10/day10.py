@@ -1,4 +1,7 @@
+from time import sleep
+from colorama import Fore
 from collections import defaultdict
+
 data = [line.strip() for line in open('input.txt').readlines()]
 
 X = 1
@@ -6,13 +9,12 @@ cycles = 1
 
 c2v = defaultdict(int)
 c2v[0] = 1
-crt = ['.' for i in range(240)]
+crt = ['.'] * 240
 idx = 0
 prev = X
 
 def draw():
     global crt, X, cycles, idx
-    print(f'Cycle [{cycles}]: Drawing pixel [{cycles-1}]', end=' ')
     if X != prev:
         idx = 0
     
@@ -21,9 +23,7 @@ def draw():
         crt[cycles - 1] = "#"
     idx += 1
     if idx > 2:
-        idx = 0
-    print(crt[cycles - 1])
-    
+        idx = 0    
 
 for ins in data:
     draw()
@@ -53,7 +53,19 @@ for i in [20, 60, 100, 140, 180, 220]:
     print(c2v[i] * i)
 print(s)
 print()
-print()
 
+colors = [Fore.CYAN, Fore.RED, Fore.GREEN, Fore.MAGENTA,
+    Fore.WHITE, Fore.CYAN, Fore.RED,
+    Fore.GREEN, Fore.MAGENTA, Fore.WHITE
+]
 for i in range(0, 240, 40):
-    print(''.join(crt[i:i+40]))
+    row = crt[i:i+40]
+    for j, ch in enumerate(row):
+        color = colors[j // 5]
+        print(color, end='')
+        sleep(0.01)
+        if ch == '#':
+            print(u"\u2588", end='')
+        else:
+            print(' ', end='')
+    print(Fore.RESET)
