@@ -22,6 +22,7 @@ map = defaultdict(dict)
 
 st = None
 ed = None
+starts = list()
 
 for cell in grid:
     i, j = cell
@@ -30,8 +31,9 @@ for cell in grid:
         ed = cell
     elif data[i][j] == 'S':
         st = cell
-    else:
-        pass
+        starts.append(cell)
+    elif data[i][j] == 'a':
+        starts.append(cell)
     
     dirs = {'N': 0, 'S': 0, 'E': 0, 'W': 0}
     check_north = True
@@ -48,8 +50,6 @@ for cell in grid:
         check_west = False
     elif j == len(data[0]) - 1:
         check_east = False
-
-
 
     if check_north and (to_nums[data[i][j]] >= to_nums[data[i - 1][j]] or (to_nums[data[i][j]] - to_nums[data[i - 1][j]]) == -1 ):
         dirs['N'] = 1
@@ -104,5 +104,14 @@ def aStar():
         cell = aPath[cell]
     return fwdPath
 
-path=aStar()
-print(f'Steps: {len(path)}')
+pathes = []
+for i, start in enumerate(starts):
+    st = start
+    print(f'Running elevation a #{i+1} ({round(100 * i / len(starts), 2)}%)')
+    try:
+        path=aStar()
+        pathes.append(len(path))
+    except KeyError:
+        continue
+
+print(f'Minimum: {min(pathes)}')
