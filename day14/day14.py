@@ -55,17 +55,22 @@ def main() -> None:
     while True:
         #print(f'There are [{len(sands) - 1}] sand particles at rest.')
         x, y = sands[idx]
+        # if cell below me is available (i.e. not sand or rock)
         if  grid[(x, y+1)] != '#' and (x, y+1) not in sands:
             sands[idx] = (x, y+1)
             isVoid = void(x, y, grid)
+        # elif, diag left is available
         elif grid[(x-1, y+1)] != '#' and (x-1, y+1) not in sands:
             sands[idx] = (x-1, y+1)
+        # elif, diag right is available
         elif grid[(x+1, y+1)] != '#' and (x+1, y+1) not in sands:
             sands[idx] = (x+1, y+1)
-        elif (x, y+1) in grid.keys():
+        # elif directly below is a sand or rock
+        elif (x, y+1) in grid.keys() or (x, y+1) in sands:
             print(f'There are [{len(sands)}] sand particles at rest.')
             idx += 1
             sands.append((500, 0))
+        # if void found, break
         if isVoid:
             sands.pop(-1)
             print(f'Void Reached: {len(sands)}')
