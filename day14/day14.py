@@ -53,10 +53,9 @@ def main() -> None:
 
     
     # Process sand
-    sands = [(500, 0)]
-    idx = 0
-    count = ''
-
+    sands = set((500, 0))
+    #idx = 0
+    
     min_x = min([pair[0] for pair in grid.keys()]) - 2
     max_x = max([pair[0] for pair in grid.keys()]) + 2
     min_y = 0
@@ -80,24 +79,27 @@ def main() -> None:
     if count == 'n':
         return'''
 
+    currSand = (500,0)
     while True:
         #print(f'There are [{len(sands) - 1}] sand particles at rest.')
-        x, y = sands[idx]
+        x, y = currSand
         # if cell below me is available (i.e. not sand or rock)
         if grid[(x, y+1)] != '#' and (x, y+1) not in sands:
             isVoid = blocked(sands)
-            sands[idx] = (x, y+1)
+            currSand = (x, y+1)
         # elif, diag left is available
         elif grid[(x-1, y+1)] != '#' and (x-1, y+1) not in sands:
-            sands[idx] = (x-1, y+1)
+            currSand = (x-1, y+1)
         # elif, diag right is available
         elif grid[(x+1, y+1)] != '#' and (x+1, y+1) not in sands:
-            sands[idx] = (x+1, y+1)
+            currSand = (x+1, y+1)
         # elif directly below is a sand or rock
         elif (x, y+1) in grid.keys() or (x, y+1) in sands:
-            print(f'There are [{len(sands)}] sand particles at rest.')
-            idx += 1
-            sands.append((500, 0))
+            #print(f'There are [{len(sands)}] sand particles at rest.')
+            #idx += 1
+            #sands.append((500, 0))
+            sands.add(currSand)
+            currSand = (500, 0)
             if blocked(sands):
                 print(f'Blocked State Reached: {len(sands)}')
                 break
@@ -107,21 +109,23 @@ def main() -> None:
             print(f'Blocked State Reached: {len(sands)}')
             break
 
+    max_y = max([pair[-1] for pair in grid.keys()]) 
+    min_x = min([pair[0] for pair in grid.keys()if pair[-1] <= max_y and pair[0] > 325]) 
+    max_x = max([pair[0] for pair in grid.keys() if pair[-1] <= max_y and pair[0] < 700]) 
+    min_y = 0
 
-        '''for y in range(min_y, max_y + 1):
-            for x in range(min_x, max_x + 1):
-                pair = (x, y)
-                if grid[pair] != '#' and grid[pair] != '+':
-                    if pair in sands:
-                        print(Fore.GREEN + 'o' + Fore.RESET, end='')
-                    else:
-                        print('.', end='')
+    for y in range(min_y, max_y + 1):
+        for x in range(min_x, max_x + 1):
+            pair = (x, y)
+            if grid[pair] != '#' and grid[pair] != '+':
+                if pair in sands:
+                    print(Fore.GREEN + 'o' + Fore.RESET, end='')
                 else:
-                    print(Fore.YELLOW + grid[pair] + Fore.RESET, end='')
-            print()
-        #count = input('continue? ')
-        if count == 'n':
-            return'''
+                    print('.', end='')
+            else:
+                print(Fore.YELLOW + grid[pair] + Fore.RESET, end='')
+        print()
+
 
 
 if __name__ == "__main__":
