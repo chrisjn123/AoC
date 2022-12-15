@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict
 from time import perf_counter
 
@@ -32,7 +33,7 @@ for line in data:
     sen_beac[sensor] = beacon
     sen_man[sensor] = manhattan(sensor, beacon)
 
-row_test = 2000000
+'''row_test = 2000000
 grid = set()
 for sensor, beacon in sen_beac.items():
     distance = manhattan(sensor, beacon)
@@ -50,4 +51,28 @@ len_y_row = len(grid)
 
 end = perf_counter()
 print(f'Time: {round(1000* (end-start), 2)} ms')
-print(f'Length: {len_y_row}')
+print(f'Length: {len_y_row}')'''
+
+start = perf_counter()
+const_provided = 4_000_000
+for sen, dist in sen_man.items():
+    leave = False
+    for val in range(dist + 1):
+        coords = (
+            # This makes sense on paper. 
+            (sen[0] - dist -1 + val, sen[1] - val),
+            (sen[0] + dist + 1 - val, sen[1] - val),
+            (sen[0] - dist -1 + val, sen[1] + val),
+            (sen[0] + dist + 1 - val, sen[1] + val)
+        )
+        
+        for x, y in coords:
+            # if within the zone, AND
+            # the distance from sensors is always greater than the sensor to beacon
+            # i.e. out of range for all sensors
+            if 0 <= x <= const_provided and 0 <= y <= const_provided \
+                and all(manhattan((x,y), s2) > d2 for s2, d2 in sen_man.items()):
+                print(x*const_provided + y)
+                end = perf_counter()
+                print(f'Time: {round(1000* (end-start), 2)} ms')
+                sys.exit()
