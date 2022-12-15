@@ -105,7 +105,7 @@ def main() -> None:
                 break
         # if void found, break
         if isVoid:
-            sands.pop(-1)
+            sands.pop()
             print(f'Blocked State Reached: {len(sands)}')
             break
 
