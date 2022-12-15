@@ -1,6 +1,7 @@
 import sys
 from collections import defaultdict
 from time import perf_counter
+from  colorama import Fore
 
 start = perf_counter()
 
@@ -53,7 +54,7 @@ end = perf_counter()
 print('~~~~~~~~~~~~~~~~ Part 1 ~~~~~~~~~~~~~~~~')
 t = round(1000* (end-start), 2)
 print(f'Time: {t} ms')
-print(f'Length: {len_y_row}')
+print(f'{Fore.GREEN}Length: {len_y_row}{Fore.RESET}')
 
 start = perf_counter()
 print('~~~~~~~~~~~~~~~~ Part 2 ~~~~~~~~~~~~~~~~')
@@ -75,7 +76,7 @@ for sen, dist in sen_man.items():
             # i.e. out of range for all sensors
             if 0 <= x <= const_provided and 0 <= y <= const_provided \
                 and all(manhattan((x,y), s2) > d2 for s2, d2 in sen_man.items()):
-                print(x*const_provided + y)
+                print(f'{Fore.CYAN}{x*const_provided + y}{Fore.RESET}')
                 end = perf_counter()
                 t2 = round(1000* (end-start), 2)
                 print(f'Time: {t2} ms')
