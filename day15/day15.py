@@ -32,7 +32,6 @@ for line in data:
     sen_beac[sensor] = beacon
     sen_man[sensor] = manhattan(sensor, beacon)
 
-
 row_test = 2000000
 grid = set()
 for sensor, beacon in sen_beac.items():
@@ -41,7 +40,7 @@ for sensor, beacon in sen_beac.items():
     width = distance - distance_to_y
 
     if width > 0:
-        for x in range(sensor[0] - width, sensor[0] + width):
+        for x in range(sensor[0] - width, sensor[0] + width +1):
             if (x, row_test) not in sen_beac.values():
                 grid.add((x, row_test))
             else:
