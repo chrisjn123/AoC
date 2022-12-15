@@ -33,43 +33,22 @@ for line in data:
     sen_man[sensor] = manhattan(sensor, beacon)
 
 
-min_x = min(
-        min([key[0] for key in sen_beac.keys()]),
-        min([value[0] for value in sen_beac.values()])
-)
-
-max_x = max(max([key[0] for key in sen_beac.keys()]), 
-    max([value[0] for value in sen_beac.values()]))
-
-min_y = min(min([key[1] for key in sen_beac.keys()]),
-    min([value[1] for value in sen_beac.values()]))
-
-max_y = max(max([key[1] for key in sen_beac.keys()]),
-    max([value[1] for value in sen_beac.values()]))
-
 row_test = 2000000
-len_x = max_x - min_x
+grid = set()
+for sensor, beacon in sen_beac.items():
+    distance = manhattan(sensor, beacon)
+    distance_to_y = abs(sensor[1] - row_test)
+    width = distance - distance_to_y
 
-grid = defaultdict()
-#for y in range(min_y, max_y + 1):
-for x in range(min_x, max_x + 1):
-    if (x, row_test) in grid.keys():
-        continue
-    for key in sen_man.keys():
-        if manhattan(key, (x, row_test)) <= sen_man[key] \
-            or sen_beac[key] == (x,row_test) \
-            or key == (x,row_test):
-            grid[(x,row_test)] = '#'
-'''for y in range(min_y, max_y + 1):
-    for x in range(min_x, max_x + 1):
-        if (x,y) in grid.keys():
-            print(grid[(x,y)], end='')
-        else:
-            print(' ',end='')
-    print()'''
+    if width > 0:
+        for x in range(sensor[0] - width, sensor[0] + width):
+            if (x, row_test) not in sen_beac.values():
+                grid.add((x, row_test))
+            else:
+                pass
 
-y_row = [key for key in grid.keys() if key[-1] == row_test]
+len_y_row = len(grid)
 
 end = perf_counter()
 print(f'Time: {round(1000* (end-start), 2)} ms')
-print(f'Length: {len(y_row)}')
+print(f'Length: {len_y_row}')
