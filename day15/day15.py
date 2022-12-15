@@ -33,7 +33,7 @@ for line in data:
     sen_beac[sensor] = beacon
     sen_man[sensor] = manhattan(sensor, beacon)
 
-'''row_test = 2000000
+row_test = 2000000
 grid = set()
 for sensor, beacon in sen_beac.items():
     distance = manhattan(sensor, beacon)
@@ -50,10 +50,13 @@ for sensor, beacon in sen_beac.items():
 len_y_row = len(grid)
 
 end = perf_counter()
-print(f'Time: {round(1000* (end-start), 2)} ms')
-print(f'Length: {len_y_row}')'''
+print('~~~~~~~~~~~~~~~~ Part 1 ~~~~~~~~~~~~~~~~')
+t = round(1000* (end-start), 2)
+print(f'Time: {t} ms')
+print(f'Length: {len_y_row}')
 
 start = perf_counter()
+print('~~~~~~~~~~~~~~~~ Part 2 ~~~~~~~~~~~~~~~~')
 const_provided = 4_000_000
 for sen, dist in sen_man.items():
     leave = False
@@ -74,5 +77,7 @@ for sen, dist in sen_man.items():
                 and all(manhattan((x,y), s2) > d2 for s2, d2 in sen_man.items()):
                 print(x*const_provided + y)
                 end = perf_counter()
-                print(f'Time: {round(1000* (end-start), 2)} ms')
+                t2 = round(1000* (end-start), 2)
+                print(f'Time: {t2} ms')
+                print(f'TOTAL TIME: {t+t2} ms')
                 sys.exit()
