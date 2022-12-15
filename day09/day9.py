@@ -98,7 +98,7 @@ def array_move_tail(current_head, target_tail) -> tuple:
         if h_x < t_x:
             next_tail = generic_move('L', next_tail)
         else:
-            next_tail = generic_move('L', next_tail)
+            next_tail = generic_move('R', next_tail)
 
         if h_y < t_y:
             next_tail = generic_move('D', next_tail)
