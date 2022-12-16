@@ -78,7 +78,7 @@ def search_2(current: str, opened: frozenset,  mins=30) ->int:
                 )
         return pressure
     else:
-        return search('AA', frozenset(), mins=26)
+        return search('AA', opened, mins=26)
 
 
 print('Starting Part 1...')
