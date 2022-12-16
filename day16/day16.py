@@ -1,44 +1,67 @@
 from collections import defaultdict
+from functools import cache
+from time import perf_counter
 
 with open('input.txt', 'r') as fh:
     data = fh.readlines()
 
-
-class Valve:
-    def __init__(self, name:str, flow: int, conns:list) -> None:
-        self.name = name
-        self.flow = flow
-        self.connections = conns
-        self.open = False
-
-g = defaultdict(list)
-open_valves = defaultdict()
-flow = defaultdict()
-
-name_table = defaultdict(int)
-name_v = 0
+valves = defaultdict(tuple)
 
 for line in data:
-    sp = line.split(';')
-    name = sp[0].split()[1]
-    name_table[name] = name_v
-    name_v += 1
-    value = int(sp[0].split('=')[-1])
-
-    conns = sp[1].split('valve')[1]
-    conns = conns.replace('s','').strip()
-    connections = conns.split(',')
+    sp = line.split()
+    name = sp[1].strip()
+    flow = int(sp[4][5:-1]) # after eq sign to last integer char
+    conns = [a.replace(',', '') for a in sp[9:]]
     
-    v = Valve(name=name, flow=value, conns=connections)
-    g[name_table[name]] = connections
-    open_valves[name_table[name]] = False #v.open
-    flow[name_table[name]] = v.flow
+    valves[name] = (flow, conns)
 
-for gi in g:
-    cons = []
-    for i in g[gi]:
-        cons.append(name_table[i.strip()])
-    g[gi] = cons
+part_1 = True
+@cache
+def search(current: str, opened: frozenset,  mins=30) ->int:
+    if mins > 0:
+        pressure = 0
+        flow, conns = valves[current] # tuple of flow(int) and conns(list)
 
-print()
+        # loop over the connections to current node
+        # find the maximum pressure in a given path FROM THE CURRENT VALVE
+        for valve in conns:
+            pressure = max(
+                pressure, 
+                search(valve, opened, mins - 1)
+            )
+        
+        # if the current one isn't open, open it if rate > 0 
+        if flow > 0 and current not in opened:
+            opened = set(opened)        # convert from frozenset to set 
+            opened.add(current)         # Add the cuurent valve 
 
+            mins -= 1                   # Decrement mins
+            new_pressure = mins * flow  # Get pressure from this valve
+            for valve in conns:
+                pressure = max(
+                    pressure, 
+                    # have to pass the frozenset of this set so that its potentially unique to each valve.
+                    # i.e. cause we can potentially open more valves in X path but not Y
+                    new_pressure + search(valve, frozenset(opened), mins - 1)
+                )
+        return pressure
+    else:
+        return 0
+
+start = perf_counter()
+part_1_answer = search('AA', frozenset())
+print(part_1_answer)
+stop = perf_counter()
+print('Part 1 ran in: {} ms'.format(round((stop-start) * 1000, 2)))
+
+# part 2 is searching from t = 1 to 26 twice
+# IF THE MINS for the 2nd pass is 0, then need to run the search again for 'elephant'
+part_2 = False
+start2 = perf_counter()
+# TODO
+print('~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~')
+stop2 = perf_counter()
+print('Part 2 ran in: {} ms'.format(round((stop2-start2) * 1000, 2)))
+
+speed_up = (stop - start) / (stop2 - start2)
+print(f'Cache sped up part 2 by a factor of: {round(speed_up,2)}')
