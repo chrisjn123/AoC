@@ -3,7 +3,7 @@ from itertools import cycle
 import os
 import  copy
 
-HEIGHT = 4
+HEIGHT = 3
 COMPLETED_POINTS = set()
 stopped = 0
 def printRock(rock):
@@ -26,8 +26,13 @@ def can_move_x(rock, dx) -> bool:
             break
     min_x = int(min([x.real for x in rock]))
     max_x = int(max([x.real for x in rock]))
-    if min_x == 0 or max_x >= 6:
-        ret = False
+    if min_x == 0 or max_x>= 6:
+        if min_x == 0 and dx > 0:
+            ret = True
+        elif max_x == 6 and dx < 0:
+            ret = True
+        else:
+            ret = False
     return ret
 
 def can_move_y(rock) -> bool:
@@ -68,7 +73,7 @@ def main():
 
     rock = copy.copy(next(rocks))
     rock = update_height_of_rock(rock)
-    op = 0
+    op = 1
     # main loop
     while stopped < 2022:
         if op == 0:
@@ -76,7 +81,6 @@ def main():
             if can_move_y(rock):
                 for i, _ in enumerate(rock):
                     rock[i] -= 1j
-                op = 1
             # otherwise its done, so generate new rock
             else:
                 for coord in rock:
@@ -85,10 +89,11 @@ def main():
                 rock = copy.copy(next(rocks))
                 rock = update_height_of_rock(rock)
                 stopped += 1
+            op = 1
         elif op == 1:
             x_dir = next(jet)
             # if can move left or right
-            if can_move_x(rock, x_dir) and can_move_y(rock):
+            if can_move_x(rock, x_dir):
                 for i, coord in enumerate(rock):
                     rock[i] += x_dir
             op = 0
@@ -98,7 +103,7 @@ def main():
         print()
         input()'''
     print(stopped, end='\t')
-    print(sorted([a.imag for a in COMPLETED_POINTS])[-2:])
+    print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
 
 if __name__ == '__main__':
     main()
