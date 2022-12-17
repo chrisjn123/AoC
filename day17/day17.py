@@ -63,32 +63,38 @@ def main():
 
     rock = copy.copy(next(rocks))
     rock = update_height_of_rock(rock)
-
+    op = 0
     # main loop
     while stopped < 2022:
         x_dir = next(jet)
         
-        # if can move left or right
-        if can_move_x(rock, x_dir) and can_move_y(rock):
-            for i, coord in enumerate(rock):
-                rock[i] += x_dir
-        # if it can move down
-        if can_move_y(rock):
-            for i, _ in enumerate(rock):
-                rock[i] -= 1j
-        # otherwise its done, so generate new rock
-        else:
-            for coord in rock:
-                COMPLETED_POINTS.add(coord)
-            HEIGHT = int(max([a.imag for a in COMPLETED_POINTS])) + 3
-            rock = copy.copy(next(rocks))
-            rock = update_height_of_rock(rock)
-            stopped += 1
+        if move == 0:
+            # if it can move down
+            if can_move_y(rock):
+                for i, _ in enumerate(rock):
+                    rock[i] -= 1j
+                op = 1
+            # otherwise its done, so generate new rock
+            else:
+                for coord in rock:
+                    COMPLETED_POINTS.add(coord)
+                HEIGHT = int(max([a.imag for a in COMPLETED_POINTS])) + 3
+                rock = copy.copy(next(rocks))
+                rock = update_height_of_rock(rock)
+                stopped += 1
+        elif op == 1:
+            # if can move left or right
+            if can_move_x(rock, x_dir):
+                if can_move_y(rock):
+                    for i, coord in enumerate(rock):
+                        rock[i] += x_dir
+            op = 0
         '''os.system('cls')
         printRock(rock)
         print('='*7)
         print()'''
-    print()
+    print(stopped, end='\t')
+    print(sorted([a.imag for a in COMPLETED_POINTS])[-2])
 
 
     
