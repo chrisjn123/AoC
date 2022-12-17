@@ -3,7 +3,7 @@ from itertools import cycle
 import os
 import  copy
 
-HEIGHT = 3
+HEIGHT = 4
 COMPLETED_POINTS = set()
 stopped = 0
 def printRock(rock):
@@ -21,7 +21,7 @@ def printRock(rock):
 def can_move_x(rock, dx) -> bool:
     ret = True
     for coord in rock:
-        if coord - 1 in COMPLETED_POINTS:
+        if coord + dx in COMPLETED_POINTS:
             ret = False
             break
     min_x = int(min([x.real for x in rock]))
@@ -56,19 +56,22 @@ def main():
     rocks = cycle([
         [2+0j, 3+0j, 4+0j, 5+0j], # line horizontal
         [3+0j, 2 + 1j, 3+1j, 4+1j, 3+2j], # plus
-        [4+0j, 4+1j, 2+2j, 3+2j, 4+2j], # L shape (reversed)
+        [2+0j, 3+0j, 4+0j, 4+1j, 4+2j], # L shape (reversed)
         [2+0j, 2+1j, 2+2j, 2+3j], # line vertical
         [2+0j, 3+0j, 2+1j, 3+1j], # square
     ])
+
+    '''while True:
+        rock = next(rocks)
+        printRock(rock)
+        input()'''
 
     rock = copy.copy(next(rocks))
     rock = update_height_of_rock(rock)
     op = 0
     # main loop
     while stopped < 2022:
-        x_dir = next(jet)
-        
-        if move == 0:
+        if op == 0:
             # if it can move down
             if can_move_y(rock):
                 for i, _ in enumerate(rock):
@@ -78,26 +81,24 @@ def main():
             else:
                 for coord in rock:
                     COMPLETED_POINTS.add(coord)
-                HEIGHT = int(max([a.imag for a in COMPLETED_POINTS])) + 3
+                HEIGHT = int(max([a.imag for a in COMPLETED_POINTS])) + 4
                 rock = copy.copy(next(rocks))
                 rock = update_height_of_rock(rock)
                 stopped += 1
         elif op == 1:
+            x_dir = next(jet)
             # if can move left or right
-            if can_move_x(rock, x_dir):
-                if can_move_y(rock):
-                    for i, coord in enumerate(rock):
-                        rock[i] += x_dir
+            if can_move_x(rock, x_dir) and can_move_y(rock):
+                for i, coord in enumerate(rock):
+                    rock[i] += x_dir
             op = 0
         '''os.system('cls')
         printRock(rock)
         print('='*7)
-        print()'''
+        print()
+        input()'''
     print(stopped, end='\t')
-    print(sorted([a.imag for a in COMPLETED_POINTS])[-2])
-
-
-    
+    print(sorted([a.imag for a in COMPLETED_POINTS])[-2:])
 
 if __name__ == '__main__':
     main()
