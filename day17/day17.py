@@ -9,8 +9,10 @@ stopped = 0
 def printRock(rock):
     val = int(max([i.imag for i in rock]))
     for y in range(1 + val, -1, -1):
-        for x in range(0, 7):
-            if complex(x, y) in rock:
+        for x in range(-1, 8):
+            if x == -1 or x == 7:
+                print('|', end='')
+            elif complex(x, y) in rock:
                 print('@', end='')
             elif complex(x, y) in COMPLETED_POINTS:
                 print('#', end='')
@@ -23,7 +25,7 @@ def can_move_x(rock, dx) -> bool:
     for coord in rock:
         if coord + dx in COMPLETED_POINTS:
             ret = False
-            break
+            return ret
     min_x = int(min([x.real for x in rock]))
     max_x = int(max([x.real for x in rock]))
     if min_x == 0 or max_x>= 6:
@@ -77,6 +79,11 @@ def main():
     op = 1
     # main loop
     while stopped < 2022:
+        os.system('cls')
+        printRock(rock)
+        print('+-------+')
+        print()
+        input()
         if op == 0:
             # if it can move down
             if can_move_y(rock):
@@ -98,11 +105,7 @@ def main():
                 for i, coord in enumerate(rock):
                     rock[i] += x_dir
             op = 0
-        '''os.system('cls')
-        printRock(rock)
-        print('='*7)
-        print()
-        sleep(0.1)'''
+        
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
 

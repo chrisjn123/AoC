@@ -1,14 +1,10 @@
 from collections import deque
+from functools import cache
 from time import perf_counter
 
-data = [line.strip() for line in open('input.txt').readlines()]
-
 points = set()
-for line in data:
-    x, y, z = line.split(',')
-    x, y, z = int(x), int(y), int(z)
-
-    points.add((x, y, z))
+CUBE_OUT = set()
+CUBE_IN = set()
 
 def findAdjacent(point):
     x, y, z = point
@@ -21,11 +17,14 @@ def findAdjacent(point):
         (x, y, z-1)
     ]
 
-CUBE_OUT = set()
-CUBE_IN = set()
+data = [line.strip() for line in open('input.txt').readlines()]
+for line in data:
+    x, y, z = line.split(',')
+    x, y, z = int(x), int(y), int(z)
 
-import functools
-@functools.cache
+    points.add((x, y, z))
+
+@cache
 def BFS(point: tuple):
     x, y, z = point
     if point in CUBE_OUT:
