@@ -28,7 +28,7 @@ def can_move_x(rock, dx) -> bool:
             return ret
     min_x = int(min([x.real for x in rock]))
     max_x = int(max([x.real for x in rock]))
-    if min_x == 0 or max_x>= 6:
+    if min_x == 0 or max_x >= 6:
         if min_x == 0 and dx > 0:
             ret = True
         elif max_x == 6 and dx < 0:
@@ -83,7 +83,6 @@ def main():
         printRock(rock)
         print('+-------+')
         print()
-        input()
         if op == 0:
             # if it can move down
             if can_move_y(rock):
@@ -101,10 +100,17 @@ def main():
         elif op == 1:
             x_dir = next(jet)
             # if can move left or right
+            print('Checking x...',end='')
             if can_move_x(rock, x_dir):
+                print('yes')
                 for i, coord in enumerate(rock):
                     rock[i] += x_dir
+            else:
+                print('no')
+
             op = 0
+        input()
+
         
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
