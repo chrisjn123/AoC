@@ -3,6 +3,8 @@ from itertools import cycle
 import os
 import  copy
 from time import sleep
+from functools import cache
+
 HEIGHT = 3
 COMPLETED_POINTS = set()
 stopped = 0
@@ -46,7 +48,28 @@ def can_move_y(rock) -> bool:
             if (coord - 1j) in COMPLETED_POINTS:
                 ret = False
                 break
-    return ret 
+    return ret
+
+
+def find_completed_rows(points: set) :
+    y_vals = set()
+    for point in points:
+        y_vals.add(point.imag)
+    
+    max_y = 0
+    for y in y_vals:
+        l_of_coords_at_y= {point.real for point in points if point.imag == y or point.imag == y-1 or point.imag == y+1}
+
+        if len(l_of_coords_at_y) == 7:
+            max_y = y-1
+        else:
+            pass
+    for point in frozenset(points):
+        if point.imag < max_y:
+            points.remove(point)
+        else:
+            pass
+    #print(f'mx height: {max_y}')
 
 def  update_height_of_rock(rock):
     for i, coord in enumerate(rock):
@@ -57,7 +80,7 @@ def  update_height_of_rock(rock):
 def main():
     global HEIGHT, stopped
     with open('test.txt', 'r') as fh:
-        jet = [ch for ch in fh.readlines()[0]]
+        jet = [ch for ch in fh.readlines()[0].strip()]
     jet = cycle([1 if ch == '>' else -1 for ch in jet])
 
     rocks = cycle([
@@ -78,11 +101,11 @@ def main():
     rock = update_height_of_rock(rock)
     op = 1
     # main loop
-    while stopped < 2022:
-        os.system('cls')
-        printRock(rock)
-        print('+-------+')
-        print()
+    while stopped < 2022: #1000000000000:
+        #os.system('cls')
+        #printRock(rock)
+        #print('+-------+')
+        #print()
         if op == 0:
             # if it can move down
             if can_move_y(rock):
@@ -92,24 +115,30 @@ def main():
             else:
                 for coord in rock:
                     COMPLETED_POINTS.add(coord)
-                HEIGHT = int(max([a.imag for a in COMPLETED_POINTS])) + 4
+                find_completed_rows(COMPLETED_POINTS)
+                HEIGHT = max(
+                    HEIGHT,
+                    int(max([a.imag for a in rock])) + 4
+                )
                 rock = copy.copy(next(rocks))
                 rock = update_height_of_rock(rock)
                 stopped += 1
+                
             op = 1
         elif op == 1:
             x_dir = next(jet)
             # if can move left or right
-            print('Checking x...',end='')
+            #print(f'Checking X {x_dir}...',end='')
             if can_move_x(rock, x_dir):
-                print('yes')
+                #print('yes')
                 for i, coord in enumerate(rock):
                     rock[i] += x_dir
             else:
-                print('no')
+                #print('no')
+                pass
 
             op = 0
-        input()
+        #input()
 
         
     print(stopped, end='\t')
