@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import cycle
 import os
 import  copy
-
+from time import sleep
 HEIGHT = 3
 COMPLETED_POINTS = set()
 stopped = 0
@@ -67,9 +67,10 @@ def main():
     ])
 
     '''while True:
+        os.system('cls')
         rock = next(rocks)
         printRock(rock)
-        input()'''
+        sleep(0.5)'''
 
     rock = copy.copy(next(rocks))
     rock = update_height_of_rock(rock)
@@ -101,7 +102,7 @@ def main():
         printRock(rock)
         print('='*7)
         print()
-        input()'''
+        sleep(0.1)'''
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
 
