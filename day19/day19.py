@@ -7,97 +7,133 @@ from functools import cache
 from copy import copy, deepcopy
 from multiprocessing import Process, Queue
 
-def helper(gBest, blueprint: dict, robots: dict,
-          resources: dict, mins=24) ->int:
-
-    if mins == 0:
-        return resources['geode']
-    #if resources['geode'] + ... < gBest[0]:
-    #    return gBest[0]
-
-    # Geode bot
-    if blueprint['rb_geode']['ore'] <= resources['ore'] and blueprint['rb_geode']['obsidian'] <= resources['obsidian']:
-        lBots = robots.copy()
-        lRsc = resources.copy()
-
-        lRsc['ore'] -= blueprint['rb_geode']['ore']
-        lRsc['obsidian'] -= blueprint['rb_geode']['obsidian']
-        # get more resources
-        for key in lRsc:
-            lRsc[key] += lBots[key]
-
-        lBots['geode'] += 1
-
-        gBest[0] = max(gBest[0],
-            helper(gBest, blueprint, lBots, lRsc, mins-1)
-        )
-    
-    # OBSIDIAN BOT
-    if blueprint['rb_obsidian']['ore'] <= resources['ore'] and blueprint['rb_obsidian']['clay'] <= resources['clay']:
-        lBots = robots.copy()
-        lRsc = resources.copy()
-        
-        
-        lRsc['ore'] -= blueprint['rb_obsidian']['ore']
-        lRsc['clay'] -= blueprint['rb_obsidian']['clay']
-        # get more resources
-        for key in lRsc:
-            lRsc[key] += lBots[key]
-        lBots['obsidian'] += 1
-
-        gBest[0] = max(gBest[0],
-             helper(gBest, blueprint, lBots, lRsc, mins-1)
-        )
-
-    # CLAY BOT
-    if blueprint['rb_clay']['ore'] <= resources['ore']:
-        lBots = robots.copy()
-        lRsc = resources.copy()
-
-        
-        lRsc['ore'] -= blueprint['rb_clay']['ore'] # remove the ore used to make robot
-        # get more resources
-        for key in lRsc:
-            lRsc[key] += lBots[key]
-
-        lBots['clay'] += 1      # add robot
-
-        gBest[0] = max(gBest[0],
-             helper(gBest, blueprint, lBots, lRsc, mins-1)
-        )
-
-    # ORE BOT
-    if blueprint['rb_ore']['ore'] <= resources['ore']:
-        lBots = robots.copy()
-        lRsc = resources.copy()
-
-       
-        lRsc['ore'] -= blueprint['rb_ore']['ore'] # remove the ore used to make robot
-        # get more resources
-        for key in lRsc:
-            lRsc[key] += lBots[key]
-        
-        lBots['ore'] += 1      # add robot
-
-        gBest[0] = max(gBest[0],
-             helper(gBest, blueprint, lBots, lRsc, mins-1)
-        )
-
-    for resource in resources:
-        resources[resource] += robots[resource]
-    gBest[0] = max(gBest[0],
-        helper(blueprint, robots, resources, mins-1)
+def helper(blueprint: dict, robots: dict, mins=24) ->int:
+    # switching from backtrace to BFS
+    best = 0
+    state = (
+        0,  # ore
+        0,  # clay
+        0,  # obsidian
+        0,  # geodes
+        robots['ore'],
+        robots['clay'],
+        robots['obsidian'],
+        robots['geode'],
+        mins # remaining Mins
     )
+    visited = set()
+    q = deque([state])
+    while q:
+        state = q.popleft()
+        ore, clay, obsidian, geode, rOre, rClay, rObsidian, rGeode, remianing_mins = state
+        best = max(best, geode)
 
-    return gBest[0]
+        if remianing_mins == 0:
+            continue
+        ORE_MAX = max([value['ore'] for value in blueprint.values()])
 
+        if rOre >= ORE_MAX:
+            rOre = ORE_MAX
+        if rClay >= blueprint['obsidian']['clay']:
+            rClay = blueprint['obsidian']['clay']
+        if rObsidian >= blueprint['geode']['obsidian']:
+            rObsidian = blueprint['geode']['obsidian']
+
+        if ore >= mins*ORE_MAX - rOre*(mins - 1):
+            ore = mins*ORE_MAX - rOre*(mins - 1)
+        if clay >= mins * blueprint['obsidian']['clay'] - rClay*(mins -1):
+            clay = mins * blueprint['obsidian']['clay'] - rClay*(mins -1)
+        if obsidian >= mins * blueprint['geode']['obsidian'] - rObsidian*(mins - 1):
+            obsidian = mins * blueprint['geode']['obsidian'] - rObsidian*(mins - 1)
+
+        state = (ore, clay, obsidian, geode, rOre, rClay, rObsidian, rGeode, mins)
+
+        if state in visited:
+            continue
+        else:
+            visited.add(state)
+        
+        assert ore >= 0 and clay >= 0 and obsidian >= 0 and geode >= 0, state
+        q.append(
+            (
+                ore + rOre,
+                clay + rClay,
+                obsidian + rObsidian,
+                geode + rGeode,
+                rOre,
+                rClay,
+                rObsidian,
+                rGeode,
+                mins - 1
+            )
+        )
+        # use ore to buy an Ore bot
+        if ore >= blueprint['ore']['ore']:
+            q.append(
+                (
+                    ore - blueprint['ore']['ore'] + rOre,
+                    clay + rClay,
+                    obsidian + rObsidian,
+                    geode + rGeode,
+                    rOre,
+                    rClay,
+                    rObsidian,
+                    rGeode,
+                    mins - 1
+                )
+            )
+        if ore >= blueprint['clay']['ore']:
+            q.append(
+                (
+                    ore - blueprint['clay']['ore'] + rOre,
+                    clay + rClay,
+                    obsidian + rObsidian,
+                    geode + rGeode,
+                    rOre,
+                    rClay,
+                    rObsidian,
+                    rGeode,
+                    mins - 1
+                )
+            )
+        if ore >= blueprint['obsidian']['ore'] and clay >= blueprint['obsidian']['clay']:
+            q.append(
+                (
+                    ore - blueprint['obsidian']['ore'] + rOre,
+                    clay - blueprint['obsidian']['clay'] + rClay,
+                    obsidian + rObsidian,
+                    geode + rGeode,
+                    rOre,
+                    rClay,
+                    rObsidian,
+                    rGeode,
+                    mins - 1
+                )
+            )
+        if ore >= blueprint['geode']['ore'] and obsidian >= blueprint['geode']['obsidian']:
+            q.append(
+                (
+                    ore - blueprint['obsidian']['ore'] + rOre,
+                    clay + rClay,
+                    obsidian - blueprint['geode']['obsidian'] + rObsidian,
+                    geode + rGeode,
+                    rOre,
+                    rClay,
+                    rObsidian,
+                    rGeode,
+                    mins - 1
+                )
+            )
+
+    return best
 
 def backtrace(out_q: Queue, bpNo: int, 
-              blueprint: dict, resources:dict, robots: dict,
+              blueprint: dict, robots: dict,
               mins=24) -> None:
     
     best = 0
-    result = helper([best], blueprint, robots, resources, mins)
+    # helper(blueprint: dict, robots: dict, mins=24)
+    result = helper(blueprint, robots, mins)
 
     out_q.put(bpNo * result)
 
@@ -135,8 +171,7 @@ def main() -> None:
         print(f'Processing  Blue Print #{i+1}...')
         p = Process(target=backtrace,
             args=(q, blueprint, deepcopy(blueprints[blueprint]),
-                deepcopy(resources), deepcopy(robots),
-                mins
+                  deepcopy(robots), mins
             )
         )
         p.start()
