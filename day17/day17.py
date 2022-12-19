@@ -79,7 +79,7 @@ def  update_height_of_rock(rock):
 
 def main():
     global HEIGHT, stopped
-    with open('test.txt', 'r') as fh:
+    with open('input.txt', 'r') as fh:
         jet = [ch for ch in fh.readlines()[0].strip()]
     jet = cycle([1 if ch == '>' else -1 for ch in jet])
 
@@ -101,7 +101,7 @@ def main():
     rock = update_height_of_rock(rock)
     op = 1
     # main loop
-    while stopped < 2022: #1000000000000:
+    while stopped < 1000000000000:
         #os.system('cls')
         #printRock(rock)
         #print('+-------+')
@@ -139,7 +139,6 @@ def main():
 
             op = 0
         #input()
-
         
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
