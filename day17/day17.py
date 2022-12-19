@@ -2,15 +2,17 @@ from collections import defaultdict
 from itertools import cycle
 import os
 import  copy
-from time import sleep
+from time import sleep, perf_counter
 from functools import cache
+import os
 
 HEIGHT = 3
 COMPLETED_POINTS = set()
 stopped = 0
 def printRock(rock):
     val = int(max([i.imag for i in rock]))
-    for y in range(1 + val, -1, -1):
+    low = val - 40 if val - 40 > -1 else -1
+    for y in range(1 + val, low, -1):
         for x in range(-1, 8):
             if x == -1 or x == 7:
                 print('|', end='')
@@ -57,11 +59,15 @@ def find_completed_rows(points: set) :
         y_vals.add(point.imag)
     
     max_y = 0
-    for y in y_vals:
-        l_of_coords_at_y= {point.real for point in points if point.imag == y or point.imag == y-1 or point.imag == y+1}
+    for i, y in enumerate(list(y_vals)[:-3]):
+        l_of_coords_at_y= {
+            point.real for point in points 
+            if point.imag == y or point.imag == y+1 or point.imag == y+2 or point.imag == y+3
+        }
+
 
         if len(l_of_coords_at_y) == 7:
-            max_y = y-1
+            max_y = y
         else:
             pass
     for point in frozenset(points):
@@ -101,7 +107,7 @@ def main():
     rock = update_height_of_rock(rock)
     op = 1
     # main loop
-    while stopped < 1000000000000:
+    while stopped < 2022:
         #os.system('cls')
         #printRock(rock)
         #print('+-------+')
@@ -115,7 +121,9 @@ def main():
             else:
                 for coord in rock:
                     COMPLETED_POINTS.add(coord)
+                #print(f'Size of all points BEFORE: {len(COMPLETED_POINTS)}')
                 find_completed_rows(COMPLETED_POINTS)
+                #print(f'Size of all points AFTER : {len(COMPLETED_POINTS)}')
                 HEIGHT = max(
                     HEIGHT,
                     int(max([a.imag for a in rock])) + 4
@@ -138,7 +146,7 @@ def main():
                 pass
 
             op = 0
-        #input()
+        #sleep(0.01)
         
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)

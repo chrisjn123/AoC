@@ -7,27 +7,29 @@ from functools import cache
 from copy import copy, deepcopy
 from multiprocessing import Process, Queue
 
-def helper(blueprint: dict, robots: dict,
+def helper(gBest, blueprint: dict, robots: dict,
           resources: dict, mins=24) ->int:
 
     if mins == 0:
         return resources['geode']
-    best = 0
+    #if resources['geode'] + ... < gBest[0]:
+    #    return gBest[0]
 
     # Geode bot
     if blueprint['rb_geode']['ore'] <= resources['ore'] and blueprint['rb_geode']['obsidian'] <= resources['obsidian']:
         lBots = robots.copy()
         lRsc = resources.copy()
 
-        lBots['geode'] += 1
         lRsc['ore'] -= blueprint['rb_geode']['ore']
         lRsc['obsidian'] -= blueprint['rb_geode']['obsidian']
         # get more resources
         for key in lRsc:
             lRsc[key] += lBots[key]
 
-        best = max(best,
-            helper(blueprint, lBots, lRsc, mins-1)
+        lBots['geode'] += 1
+
+        gBest[0] = max(gBest[0],
+            helper(gBest, blueprint, lBots, lRsc, mins-1)
         )
     
     # OBSIDIAN BOT
@@ -35,15 +37,16 @@ def helper(blueprint: dict, robots: dict,
         lBots = robots.copy()
         lRsc = resources.copy()
         
-        lBots['obsidian'] += 1
+        
         lRsc['ore'] -= blueprint['rb_obsidian']['ore']
         lRsc['clay'] -= blueprint['rb_obsidian']['clay']
         # get more resources
         for key in lRsc:
             lRsc[key] += lBots[key]
+        lBots['obsidian'] += 1
 
-        best = max(best,
-             helper(blueprint, lBots, lRsc, mins-1)
+        gBest[0] = max(gBest[0],
+             helper(gBest, blueprint, lBots, lRsc, mins-1)
         )
 
     # CLAY BOT
@@ -51,14 +54,16 @@ def helper(blueprint: dict, robots: dict,
         lBots = robots.copy()
         lRsc = resources.copy()
 
-        lBots['clay'] += 1      # add robot
+        
         lRsc['ore'] -= blueprint['rb_clay']['ore'] # remove the ore used to make robot
         # get more resources
         for key in lRsc:
             lRsc[key] += lBots[key]
 
-        best = max(best,
-             helper(blueprint, lBots, lRsc, mins-1)
+        lBots['clay'] += 1      # add robot
+
+        gBest[0] = max(gBest[0],
+             helper(gBest, blueprint, lBots, lRsc, mins-1)
         )
 
     # ORE BOT
@@ -66,30 +71,33 @@ def helper(blueprint: dict, robots: dict,
         lBots = robots.copy()
         lRsc = resources.copy()
 
-        lBots['ore'] += 1      # add robot
+       
         lRsc['ore'] -= blueprint['rb_ore']['ore'] # remove the ore used to make robot
         # get more resources
         for key in lRsc:
             lRsc[key] += lBots[key]
+        
+        lBots['ore'] += 1      # add robot
 
-        best = max(best,
-             helper(blueprint, lBots, lRsc, mins-1)
+        gBest[0] = max(gBest[0],
+             helper(gBest, blueprint, lBots, lRsc, mins-1)
         )
 
     for resource in resources:
         resources[resource] += robots[resource]
-    best = max(best,
+    gBest[0] = max(gBest[0],
         helper(blueprint, robots, resources, mins-1)
     )
 
-    return best
+    return gBest[0]
 
 
 def backtrace(out_q: Queue, bpNo: int, 
               blueprint: dict, resources:dict, robots: dict,
               mins=24) -> None:
     
-    result = helper(blueprint, robots, resources, mins)
+    best = 0
+    result = helper([best], blueprint, robots, resources, mins)
 
     out_q.put(bpNo * result)
 
