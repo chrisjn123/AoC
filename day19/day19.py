@@ -13,51 +13,67 @@ def helper(blueprint: dict, robots: dict,
     if mins == 0:
         return resources['geode']
     best = 0
-    # ORE BOT
-    if blueprint['rb_ore']['ore'] <= resources['ore']:
-        robots['ore'] += 1      # add robot
-        resources['ore'] -= blueprint['rb_ore']['ore'] # remove the ore used to make robot
-        # get more resources
-        for key in resources:
-            resources[key] += robots[key]
 
-        best = max(best,
-            helper(blueprint, robots, resources, mins-1)
-        )
-    # CLAY BOT
-    if blueprint['rb_clay']['ore'] <= resources['ore']:
-        robots['clay'] += 1      # add robot
-        resources['ore'] -= blueprint['rb_clay']['ore'] # remove the ore used to make robot
-        # get more resources
-        for key in resources:
-            resources[key] += robots[key]
-
-        best = max(best,
-            helper(blueprint, robots, resources, mins-1)
-        )
-    # OBSIDIAN BOT
-    if blueprint['rb_obsidian']['ore'] <= resources['ore'] and blueprint['rb_obsidian']['clay'] <= resources['clay']:
-        robots['obsidian'] += 1
-        resources['ore'] -= blueprint['rb_obsidian']['ore']
-        resources['clay'] -= blueprint['rb_obsidian']['clay']
-        # get more resources
-        for key in resources:
-            resources[key] += robots[key]
-
-        best = max(best,
-            helper(blueprint, robots, resources, mins-1)
-        )
     # Geode bot
     if blueprint['rb_geode']['ore'] <= resources['ore'] and blueprint['rb_geode']['obsidian'] <= resources['obsidian']:
-        robots['geode'] += 1
-        resources['ore'] -= blueprint['rb_geode']['ore']
-        resources['obsidian'] -= blueprint['rb_geode']['obsidian']
+        lBots = robots.copy()
+        lRsc = resources.copy()
+
+        lBots['geode'] += 1
+        lRsc['ore'] -= blueprint['rb_geode']['ore']
+        lRsc['obsidian'] -= blueprint['rb_geode']['obsidian']
         # get more resources
-        for key in resources:
-            resources[key] += robots[key]
+        for key in lRsc:
+            lRsc[key] += lBots[key]
 
         best = max(best,
-            helper(blueprint, robots, resources, mins-1)
+            helper(blueprint, lBots, lRsc, mins-1)
+        )
+    
+    # OBSIDIAN BOT
+    if blueprint['rb_obsidian']['ore'] <= resources['ore'] and blueprint['rb_obsidian']['clay'] <= resources['clay']:
+        lBots = robots.copy()
+        lRsc = resources.copy()
+        
+        lBots['obsidian'] += 1
+        lRsc['ore'] -= blueprint['rb_obsidian']['ore']
+        lRsc['clay'] -= blueprint['rb_obsidian']['clay']
+        # get more resources
+        for key in lRsc:
+            lRsc[key] += lBots[key]
+
+        best = max(best,
+             helper(blueprint, lBots, lRsc, mins-1)
+        )
+
+    # CLAY BOT
+    if blueprint['rb_clay']['ore'] <= resources['ore']:
+        lBots = robots.copy()
+        lRsc = resources.copy()
+
+        lBots['clay'] += 1      # add robot
+        lRsc['ore'] -= blueprint['rb_clay']['ore'] # remove the ore used to make robot
+        # get more resources
+        for key in lRsc:
+            lRsc[key] += lBots[key]
+
+        best = max(best,
+             helper(blueprint, lBots, lRsc, mins-1)
+        )
+
+    # ORE BOT
+    if blueprint['rb_ore']['ore'] <= resources['ore']:
+        lBots = robots.copy()
+        lRsc = resources.copy()
+
+        lBots['ore'] += 1      # add robot
+        lRsc['ore'] -= blueprint['rb_ore']['ore'] # remove the ore used to make robot
+        # get more resources
+        for key in lRsc:
+            lRsc[key] += lBots[key]
+
+        best = max(best,
+             helper(blueprint, lBots, lRsc, mins-1)
         )
 
     for resource in resources:
