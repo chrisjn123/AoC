@@ -14,7 +14,7 @@ def backtrace(out_q: Queue, bpNo: int, blueprint: dict, st_rsc: dict, mins=24) -
     out_q.put(bpNo *result)
 
 def main() -> None:
-    data = open('test.txt').read().split('\n\n')
+    data = open('input.txt').read().split('\n\n')
     mins = 24
     resources = defaultdict(int)
     blueprints = defaultdict(dict)
