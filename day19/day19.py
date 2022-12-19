@@ -7,8 +7,7 @@ from functools import cache
 from copy import copy, deepcopy
 from multiprocessing import Process, Queue
 
-def helper(bpNo: int, 
-          blueprint: dict, robots: dict,
+def helper(blueprint: dict, robots: dict,
           resources: dict, mins=24) ->int:
 
     if mins == 0:
@@ -71,10 +70,10 @@ def helper(bpNo: int,
 
 
 def backtrace(out_q: Queue, bpNo: int, 
-              blueprint: dict, robots: dict,
+              blueprint: dict, resources:dict, robots: dict,
               mins=24) -> None:
     
-    result = helper(bpNo, blueprint, robots, mins)
+    result = helper(blueprint, robots, resources, mins)
 
     out_q.put(bpNo * result)
 
