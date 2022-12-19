@@ -8,10 +8,15 @@ from copy import copy, deepcopy
 from multiprocessing import Process, Queue
 
 
-def backtrace(out_q: Queue, bpNo: int, blueprint: dict, st_rsc: dict, mins=24) -> None:
+def backtrace(out_q: Queue, bpNo: int, 
+              blueprint: dict, robots: dict,
+              mins=24) -> None:
     result = 0
+    if mins == 0:
+        return robots['geode'] 
+    geodes = 0
 
-    out_q.put(bpNo *result)
+    out_q.put(bpNo * result)
 
 def main() -> None:
     data = open('input.txt').read().split('\n\n')
@@ -43,22 +48,25 @@ def main() -> None:
         blueprints[bprint_no] = things
     
     q = Queue()
-    for blueprint in blueprints:
+    for i, blueprint in enumerate(blueprints):
+        print(f'Processing  Blue Print #{i+1}...')
         p = Process(target=backtrace,
             args=(q, blueprint, deepcopy(blueprints[blueprint]),
-                deepcopy(resources)
+                deepcopy(robots)
             )
         )
         p.start()
     
-    geodes = 0
+    geodes = []
     # get the values from processes
     for _ in blueprints:
-        geodes += q.get()
+        geodes.append(q.get())
     
-    print(f'Geodes: {geodes}')
+    print(f'Geodes: {sum(geodes)}')
 
 if __name__ == '__main__':
     start = perf_counter()
+    
     main()
+    
     print(f'\nTime: {round((perf_counter() - start) * 1000, 2)} ms')
