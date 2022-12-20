@@ -53,29 +53,19 @@ def can_move_y(rock) -> bool:
     return ret
 
 
-def find_completed_rows(points: set) :
-    y_vals = set()
-    for point in points:
-        y_vals.add(point.imag)
-    
-    max_y = 0
-    for i, y in enumerate(list(y_vals)[:-3]):
-        l_of_coords_at_y= {
-            point.real for point in points 
-            if point.imag == y or point.imag == y+1 or point.imag == y+2 or point.imag == y+3
-        }
+def find_completed_rows(points: set, rock) :
+    rock_y = {val.imag for val in rock}
+    for y in rock_y:
+        completed = True
+        for x in range(0, 7):
+            completed = completed and complex(x, y) in points
+        if completed:
+            for val in frozenset(points):
+                if val.imag < y:
+                    points.remove(val)
+            return
+    return 
 
-
-        if len(l_of_coords_at_y) == 7:
-            max_y = y
-        else:
-            pass
-    for point in frozenset(points):
-        if point.imag < max_y:
-            points.remove(point)
-        else:
-            pass
-    #print(f'mx height: {max_y}')
 
 def  update_height_of_rock(rock):
     for i, coord in enumerate(rock):
@@ -107,11 +97,11 @@ def main():
     rock = update_height_of_rock(rock)
     op = 1
     # main loop
-    while stopped < 2022:
-        #os.system('cls')
-        #printRock(rock)
-        #print('+-------+')
-        #print()
+    while stopped < 100_000:
+        os.system('cls')
+        printRock(rock)
+        print('+-------+')
+        print()
         if op == 0:
             # if it can move down
             if can_move_y(rock):
@@ -122,7 +112,7 @@ def main():
                 for coord in rock:
                     COMPLETED_POINTS.add(coord)
                 #print(f'Size of all points BEFORE: {len(COMPLETED_POINTS)}')
-                find_completed_rows(COMPLETED_POINTS)
+                find_completed_rows(COMPLETED_POINTS, rock)
                 #print(f'Size of all points AFTER : {len(COMPLETED_POINTS)}')
                 HEIGHT = max(
                     HEIGHT,
@@ -146,10 +136,13 @@ def main():
                 pass
 
             op = 0
-        #sleep(0.01)
+        sleep(0.005)
         
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
 
 if __name__ == '__main__':
+    from time import perf_counter
+    start = perf_counter()
     main()
+    print(f'TIme: {1000 *(perf_counter() - start)} ms')
