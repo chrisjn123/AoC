@@ -75,7 +75,7 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
                     clay + rClay,
                     obsidian + rObsidian,
                     geode + rGeode,
-                    rOre,
+                    rOre+1,
                     rClay,
                     rObsidian,
                     rGeode,
@@ -90,7 +90,7 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
                     obsidian + rObsidian,
                     geode + rGeode,
                     rOre,
-                    rClay,
+                    rClay+1,
                     rObsidian,
                     rGeode,
                     mins - 1
@@ -105,7 +105,7 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
                     geode + rGeode,
                     rOre,
                     rClay,
-                    rObsidian,
+                    rObsidian+1,
                     rGeode,
                     mins - 1
                 )
@@ -120,7 +120,7 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
                     rOre,
                     rClay,
                     rObsidian,
-                    rGeode,
+                    rGeode+1,
                     mins - 1
                 )
             )
