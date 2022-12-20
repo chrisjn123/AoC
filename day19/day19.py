@@ -155,12 +155,12 @@ def main() -> None:
         bprint_no = int(sp[0].split(' ')[-1].replace(':', ''))
         
         things = {
-            'rb_ore': {'ore' :int(sp[1].split('costs')[1].split()[0])},
-            'rb_clay': {'ore': int(sp[2].split('costs')[1].split()[0])},
-            'rb_obsidian': {'ore': int(sp[3].split('costs')[1].split()[0]),
+            'ore': {'ore' :int(sp[1].split('costs')[1].split()[0])},
+            'clay': {'ore': int(sp[2].split('costs')[1].split()[0])},
+            'obsidian': {'ore': int(sp[3].split('costs')[1].split()[0]),
                          'clay': int(sp[3].split('and')[1].split()[0]) 
                         },
-            'rb_geode': { 'ore': int(sp[4].split('costs')[1].split()[0]),
+            'geode': { 'ore': int(sp[4].split('costs')[1].split()[0]),
                         'obsidian': int(sp[4].split('and')[1].split()[0])
                      }
         }
