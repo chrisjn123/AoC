@@ -29,7 +29,10 @@ def main():
                 -d.index((val, i))  # search for val and index combo
             )
             d.popleft()             # remove it 
-            d.rotate(-val)          # rotate by value (start (0) will be the position to insert)
+            #d.rotate(-val)         # rotate by value (start (0) will be the position to insert)
+            d.rotate(               # This is the "better" version but is ~0.1 s slower...
+                -(val % (len(data) -1))
+            )          
             d.appendleft((val, i))  # Add it to index 0
 
     # data is in correct order but rotated out from the ideal postion due to rotates
