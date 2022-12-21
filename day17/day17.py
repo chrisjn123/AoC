@@ -93,15 +93,16 @@ def main():
         printRock(rock)
         sleep(0.5)'''
 
+    rock_idx = 0
     rock = copy.copy(next(rocks))
     rock = update_height_of_rock(rock)
     op = 1
     # main loop
     while stopped < 100_000:
-        os.system('cls')
+        '''os.system('cls')
         printRock(rock)
         print('+-------+')
-        print()
+        print()'''
         if op == 0:
             # if it can move down
             if can_move_y(rock):
@@ -114,10 +115,15 @@ def main():
                 #print(f'Size of all points BEFORE: {len(COMPLETED_POINTS)}')
                 find_completed_rows(COMPLETED_POINTS, rock)
                 #print(f'Size of all points AFTER : {len(COMPLETED_POINTS)}')
+                with open('height-and-rock-idx.txt', 'a+') as fh:
+                    fh.write(f'{HEIGHT}\t{rock_idx}\n')
+                rock_idx = 0 if rock_idx + 1 == 5 else rock_idx + 1
+
                 HEIGHT = max(
                     HEIGHT,
                     int(max([a.imag for a in rock])) + 4
                 )
+                
                 rock = copy.copy(next(rocks))
                 rock = update_height_of_rock(rock)
                 stopped += 1
@@ -136,7 +142,7 @@ def main():
                 pass
 
             op = 0
-        sleep(0.005)
+        #sleep(0.005)
         
     print(stopped, end='\t')
     print(sorted([a.imag for a in COMPLETED_POINTS])[-1] + 1)
