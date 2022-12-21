@@ -6,10 +6,11 @@ from itertools import chain, cycle
 from functools import cache
 from copy import copy, deepcopy
 from multiprocessing import Process, Queue
+from time import sleep
 
-def helper(blueprint: dict, robots: dict, mins=24) ->int:
+def helper(best, blueprint: dict, robots: dict, mins=24) ->int:
     # switching from backtrace to BFS
-    best = 0
+    
     state = (
         0,  # ore
         0,  # clay
@@ -26,7 +27,10 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
     while q:
         state = q.popleft()
         ore, clay, obsidian, geode, rOre, rClay, rObsidian, rGeode, remianing_mins = state
-        best = max(best, geode)
+        best[0] = max(best[0], geode)
+
+        if geode + rGeode*remianing_mins*(remianing_mins - 1) <= best[0]:
+            continue
 
         if remianing_mins == 0:
             continue
@@ -53,7 +57,7 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
         else:
             visited.add(state)
         
-        assert ore >= 0 and clay >= 0 and obsidian >= 0 and geode >= 0, state
+        #assert ore >= 0 and clay >= 0 and obsidian >= 0 and geode >= 0, state
         q.append(
             (
                 ore + rOre,
@@ -125,7 +129,7 @@ def helper(blueprint: dict, robots: dict, mins=24) ->int:
                 )
             )
 
-    return best
+    return best[0]
 
 def backtrace(out_q: Queue, bpNo: int, 
               blueprint: dict, robots: dict,
@@ -138,7 +142,7 @@ def backtrace(out_q: Queue, bpNo: int,
     out_q.put(bpNo * result)
 
 def main() -> None:
-    data = open('input.txt').read().split('\n\n')
+    data = open('test.txt').read().split('\n\n')
     mins = 24
     resources = defaultdict(int)
     blueprints = defaultdict(dict)
@@ -166,7 +170,14 @@ def main() -> None:
         }
         blueprints[bprint_no] = things
     
-    q = Queue()
+    for key, blueprint in blueprints.items():
+        print(f'BluePrint {key}...', end='\t')
+        sleep(0.1)
+        best = [0]
+        result = helper(best, deepcopy(blueprint), deepcopy(robots))
+        print(key * result)
+
+    '''q = Queue()
     for i, blueprint in enumerate(blueprints):
         print(f'Processing  Blue Print #{i+1}...')
         p = Process(target=backtrace,
@@ -179,9 +190,9 @@ def main() -> None:
     geodes = []
     # get the values from processes
     for _ in blueprints:
-        geodes.append(q.get())
+        geodes.append(q.get())'''
     
-    print(f'Geodes: {sum(geodes)}')
+    #print(f'Geodes: {sum(geodes)}')
 
 if __name__ == '__main__':
     start = perf_counter()
