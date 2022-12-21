@@ -8,4 +8,3 @@ delta = [
 ]
 
 
-print()
