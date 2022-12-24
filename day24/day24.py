@@ -1,77 +1,77 @@
-from collections import defaultdict
-data = open('test.txt').readlines()
+from collections import defaultdict, deque
+import sys
 
-data = [line.strip() for line in data]
+fname = 'input.txt'
 
-idx_a = [i for i, val in enumerate(data[0]) if val == '.'][0]
-idx_b = [i for i, val in enumerate(data[-1]) if val == '.'][0]
+data = [
+    line.strip() for line in open(fname).readlines()
+]
 
-dir_chr = {'<': -1+0j, '>': 1+0j, '^': -1j, 'V': 1j}
-bliz = set()
-max_y = len(data) - 2 
-min_y = 1
-min_x = 1
-max_x = len(data[0]) - 2
-ENTRANCE = complex(idx_a, 0)
-curr = ENTRANCE
-EXIT = complex(idx_b, len(data) - 1)
+dir_ch = {
+    '<': -1+0j,
+    '>': 1+0j,
+    '^': 0-1j,
+    'V': 0+1j
+}
 
-def print_grid(x, y, bliz: list):
-    for yi in range(y+2):
-        for xi in  range(x+2):
-            if xi == 0 or xi == x+1 or yi == 0 or yi == y+1:
-                if complex(xi, yi) == ENTRANCE or complex(xi,yi) == EXIT:
-                    print('E', end='')
-                else:
-                    print('#',end='')
-            elif complex(xi, yi) in [b.position for b in bliz]:
-                b = [obj for obj in bliz if obj.position == complex(xi, yi)][0]
-                key = [key for key, val in dir_chr.items() if val == b.direction][0]
-                print(key, end='')
-            else:
-                print('.', end='')
-        print()
-class Bliz:
-    def __init__(self, direction: complex, pos: complex) -> None:
-        self.direction = direction
-        self.position = pos
-    
-    def move(self):
-        self.position += self.direction
-        if self.position.imag > max_y:
-            self.position = complex(
-                self.position.real,
-                min_y
-            )
-        if self.position.imag < min_y:
-            self.position = complex(
-                self.position.real,
-                max_y
-            )
-        if self.position.real > max_x:
-            self.position = complex(
-                min_x,
-                self.position.imag
-            )
-        if self.position.real < min_x:
-            self.position = complex(
-                max_x,
-                self.position.imag
-            )
+# each coord will store the list of blizzard types (directions)
+bliz = defaultdict(list)
 
+# I don't want to deal with 1 based index so... align to 0
 for y, line in enumerate(data):
     for x, ch in enumerate(line):
-        if ch in dir_chr.keys():
-            direction = dir_chr[ch]
-            pos = complex(x, y)
-            b = Bliz(direction, pos)
-            bliz.add(b)
+        if ch in dir_ch.keys():
+            bliz[(x-1) + (y-1)*1j].append(dir_ch[ch])
 
-#print_grid(max_x, max_y, bliz)
-for b in bliz:
-    b.move()
+width = len(data[0]) - 2
+height = len(data) - 2
+start = -1j
+end = height*1j + width-1
 
-mins = 0
-while curr != EXIT:
-    # move or wait
-    pass
+def move_bliz(bliz:dict, h:int, w:int):
+    new_bliz = defaultdict(list)
+    for pos, b in bliz.items():
+        for pt in b:
+            pos_update = ((pos + pt).real % w ) + (1j * ((pos+ pt).imag % h))
+            new_bliz[pos_update].append(pt)
+    return new_bliz
+
+def move_e(w:int, h, waypoints, loc:complex):
+    valid_moves_for_E = {
+        point for point in [loc - 1, loc + 1, loc - 1j, loc + 1j]
+        if point in waypoints or (point.real in range(w+1) and point.imag in range(h+1)) 
+    }
+    return valid_moves_for_E
+
+
+def BFS(grid:dict, w:int, h:int, start:complex, waypoints):
+    grid_dict = {0: grid}
+    seen = set()
+    q = deque()
+
+    q.append((0, start, waypoints))
+    while q:
+        tm, pos, wp = q.popleft()
+
+        # if position == end
+        if pos == wp[0]:
+            wp = wp[1:]
+            q.clear()
+
+        # if no more points to travel to
+        if not wp:
+            return tm
+
+        # if the next tuime is not listed
+        if not tm + 1 in grid_dict:
+            grid_dict[tm + 1] = move_bliz(grid_dict[tm], height, width)
+        
+        # for each vlaid move
+        for mv in move_e(width, height, waypoints, pos):
+            if not mv in grid_dict[tm + 1] and not (tm + 1, mv, wp) in seen:
+                seen.add((tm + 1, mv, wp))
+                q.append((tm + 1, mv, wp))
+
+
+print(BFS(bliz, width, height, start, (end,)))
+print(BFS(bliz, width, height, start, (end, start, end)))
